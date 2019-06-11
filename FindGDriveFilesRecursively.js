@@ -6,12 +6,15 @@ function ListNamedFilesandFoldersRecursively() {
   
   var sheet = initSheet();
   var baseFolderIterator = DriveApp.getFoldersByName(baseFolder);
+  var folderName = "";
   
 //  Logger.log(baseFolderIterator);
   
   var baseFolder = baseFolderIterator.next();
+//  folderName = String(baseFolder);
+//  Logger.log(fileName);
 //  Logger.log(baseFolder);
-  LookForFiles(baseFolder, baseFolder.getFiles(), sheet);
+  LookForFiles(folderName, baseFolder, baseFolder.getFiles(), sheet);
 }
 
 //creates table header and clears the existing sheet
@@ -23,9 +26,19 @@ function initSheet() {
 }
 
 //recursively look for files in a folder, once no new files are found, looks for subfolders
-function LookForFiles(folder, myFiles, sheet) {
+function LookForFiles(folderName, folder, myFiles, sheet) {
   try {
-	  if (myFiles.hasNext()) {
+	  if (myFiles.hasNext()) {        
+        if (folderName.indexOf('/') != -1) {
+          var i = folderName.lastIndexOf('/');
+          var tmpName = folderName.substring(i + 1);
+          if (tmpName != folder) {
+            folderName = folderName + '/' + folder;
+          }
+        } else {
+          folderName = folderName + '/' + folder;
+        }
+        
 	    var myFile = myFiles.next();
 	    var fileName = myFile.getName();
 	    var fileDate = myFile.getLastUpdated();
@@ -36,7 +49,7 @@ function LookForFiles(folder, myFiles, sheet) {
 	    var fileType = myFile.getMimeType();
 	    
 	    data = [
-	      folder,
+	      folderName,
 	      fileName,
 	      fileDate,
 	      fileOwner,
@@ -48,7 +61,7 @@ function LookForFiles(folder, myFiles, sheet) {
 	    sheet.appendRow(data);
 	    
 	    //Logger.log(fileName);
-	    LookForFiles(folder, myFiles, sheet);
+	    LookForFiles(folderName, folder, myFiles, sheet);
 	  } else {
 	//    Logger.log(folder)
 	    
@@ -56,29 +69,33 @@ function LookForFiles(folder, myFiles, sheet) {
 	//      Logger.log(folder);
 	      var subFolders = folder.getFolders();
 	//      Logger.log(subFolders);
-	      LookForSubFolders(subFolders, sheet);
+          
+	      LookForSubFolders(folderName, subFolders, sheet);
 	    } catch(error) {
 	      Logger.log(error);
 	    }      
 	  }
-	} catch (error) {
-		try {
+  } catch (error) {
+	try {
 	//      Logger.log(folder);
-	      var subFolders = folder.getFolders();
+      var subFolders = folder.getFolders();
 	//      Logger.log(subFolders);
-	      LookForSubFolders(subFolders, sheet);
-	    } catch(error) {
-	      Logger.log(error);
-	    }	
-	}
+      
+      folderName = folderName + '/' + folder;
+      LookForSubFolders(folderName, subFolders, sheet);
+    } catch(error) {
+      Logger.log(error);
+    }	
+  }
 }
 
 //recursively look for subfolders
-function LookForSubFolders(subFolders, sheet) {
+function LookForSubFolders(folderName, subFolders, sheet) {
   if (subFolders.hasNext()) {
     //Logger.log(subFolders.next());
     var nextSubFolder = subFolders.next();
-    LookForFiles(nextSubFolder, nextSubFolder.getFiles(), sheet);
-    LookForSubFolders(subFolders, sheet);
+
+    LookForFiles(folderName, nextSubFolder, nextSubFolder.getFiles(), sheet);
+    LookForSubFolders(folderName, subFolders, sheet);
   }
 }
