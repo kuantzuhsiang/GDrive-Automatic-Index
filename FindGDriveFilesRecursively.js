@@ -18,7 +18,7 @@ function ListNamedFilesandFoldersRecursively() {
 function initSheet() {
   var sheet = SpreadsheetApp.getActiveSheet();
   sheet.clear();
-  sheet.appendRow(["Folder","Name", "Date Last Updated", "Size", "URL", "Description", "Type"]);
+  sheet.appendRow(["Folder","Name", "Date Last Updated", "Owner", "Size", "URL", "Description", "Type"]);
   return sheet;
 }
 
@@ -28,6 +28,7 @@ function LookForFiles(folder, myFiles, sheet) {
     var myFile = myFiles.next();
     var fileName = myFile.getName();
     var fileDate = myFile.getLastUpdated();
+    var fileOwner = myFile.getOwner();
     var fileSize = myFile.getSize();
     var fileUrl = myFile.getUrl();
     var filedesc = myFile.getDescription();
@@ -37,6 +38,7 @@ function LookForFiles(folder, myFiles, sheet) {
       folder,
       fileName,
       fileDate,
+      fileOwner,
       fileUrl,
       filedesc,
       fileType
