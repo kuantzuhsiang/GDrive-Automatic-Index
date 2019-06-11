@@ -39,6 +39,7 @@ function LookForFiles(folder, myFiles, sheet) {
       fileName,
       fileDate,
       fileOwner,
+      fileSize,
       fileUrl,
       filedesc,
       fileType
